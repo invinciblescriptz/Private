@@ -1160,54 +1160,98 @@ local IndustrialRockSwitch = mobileFolder:AddSwitch("Farm Industrial Rock", func
     end
 end)
 
+local teleport = mainTab:AddFolder("Teleports")
 
-local tpFolder = mainTab:AddFolder("Teleports")
-
-local teleportButtons = {
-    {"Spawn [ Red Boi Style ]", Vector3.new(-297.690796, 2.64507079, -356.121643, -0.99831903, 4.48642901e-10, 0.0579579547, -8.45888845e-11, 1, -9.19786736e-09, -0.0579579547, -9.18730869e-09, -0.99831903)},
-    {"Old Spin Island", Vector3.new(1947, 2, 6191)},
-    {"Tiny Island", Vector3.new(-39, 6, 1886)},
-    {"Frozen Gym", Vector3.new(-2623, 6, -409)},
-    {"Mythical Gym", Vector3.new(2251, 6, 1073)},
-    {"Inferno Gym", Vector3.new(-6759, 6, -1285)},
-    {"Legends Gym", Vector3.new(4603, 990, -3898)},
-    {"Muscle King Gym", Vector3.new(-8626, 16, -5730)},
-    {"Jungle Gym", Vector3.new(-8642, 6, 2381)},
-    {"Lava Brawl", Vector3.new(4471, 119, -8836)},
-    {"Desert Brawl", Vector3.new(960, 17, -7398)},
-    {"Beach Brawl", Vector3.new(-1849, 20, -6335)},
-    {"Industrial Gym", CFrame.new(-5563.23389, 55.7477875, 4942.44482, -1.19209261e-07, -3.28270389e-08, -1, -2.57486423e-08, 1, -3.28270389e-08, 1, 2.57486388e-08, -1.19209261e-07)}
-}
-
-local function tpTo(pos)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:FindFirstChild("HumanoidRootPart") or character:WaitForChild("HumanoidRootPart", 5)
-    
-    if not hrp then return end
-
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    end
-
-    if typeof(pos) == "CFrame" then
-        hrp.CFrame = pos
-    else
-        hrp.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
-    end
-
-    hrp.Velocity = Vector3.zero
-    hrp.RotVelocity = Vector3.zero
-end
-
-for _, btn in ipairs(teleportButtons) do
-    local name, pos = btn[1], btn[2]
-    tpFolder:AddButton(name, function()
-        tpTo(pos)
-    end)
-end
-
+teleport:AddButton("Spawn", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(2, 8, 115)  
+end)  
+  
+teleport:AddButton("Secret Area", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(1947, 2, 6191)  
+end)  
+  
+teleport:AddButton("Tiny Island", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-34, 7, 1903)  
+end)  
+  
+teleport:AddButton("Frozen Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-2600.00244, 3.67686558, -403.884369, 0.0873617008, 1.0482899e-09, 0.99617666, 3.07204253e-08, 1, -3.7464023e-09, -0.99617666, 3.09302628e-08, 0.0873617008)  
+end)  
+  
+teleport:AddButton("Mythical Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(2255, 7, 1071)  
+end)  
+  
+teleport:AddButton("Hell Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-6768, 7, -1287)  
+end)  
+  
+teleport:AddButton("Legend Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(4604, 991, -3887)  
+end)  
+  
+teleport:AddButton("King Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-8646, 17, -5738)  
+end)  
+  
+teleport:AddButton("Jungle Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-8659, 6, 2384)  
+end)  
+  
+teleport:AddButton("Industrial Gym", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-4964.45996, 80.5837097, 5450.75098, 0.989425242, -4.00852578e-08, 0.145043939, 3.82864975e-08, 1, 1.51928514e-08, -0.145043939, -9.47896517e-09, 0.989425242)  
+end)  
+  
+teleport:AddButton("Brawl Lava", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(4471, 119, -8836)  
+end)  
+  
+teleport:AddButton("Brawl Desert", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(960, 17, -7398)  
+end)  
+  
+teleport:AddButton("Brawl Regular", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-1849, 20, -6335)  
+end)
 
 local redFolder = mainTab:AddFolder("Dumb Shit Red Wanted Me To Add")
 
@@ -1349,37 +1393,15 @@ local mypvpstats = statsTab:AddFolder("PvP Stats")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 local damageLabel = mypvpstats:AddLabel("Damage: Calculating...")
 local healthLabel = mypvpstats:AddLabel("Health: Calculating...")
 
 local function formatNumber(n)
-    if n >= 1e12 then
+    if n >= 1e18 then
+        return string.format("%.2fQi", n / 1e18)
+    elseif n >= 1e15 then
+        return string.format("%.2fQa", n / 1e15)
+    elseif n >= 1e12 then
         return string.format("%.2fT", n / 1e12)
     elseif n >= 1e9 then
         return string.format("%.2fB", n / 1e9)
@@ -1407,12 +1429,10 @@ task.spawn(function()
                 or (character and character:FindFirstChild("Stats"))
 
             if stats then
-                -- Look for Strength
                 if stats:FindFirstChild("Strength") then
                     Strength = stats.Strength.Value
                 end
 
-                -- Durability / Defense / Health
                 if stats:FindFirstChild("Durability") then
                     durability = stats.Durability.Value
                 elseif stats:FindFirstChild("Defense") then
@@ -1422,30 +1442,25 @@ task.spawn(function()
                 end
             end
 
-            -- Fallback if Strength is still 0
-            if Strength == 0 then
-                if player:FindFirstChild("Strength") then
-                    Strength = player.Strength.Value
-                end
+            if Strength == 0 and player:FindFirstChild("Strength") then
+                Strength = player.Strength.Value
             end
 
-            if durability == 0 then
-                if player:FindFirstChild("Durability") then
-                    durability = player.Durability.Value
-                end
+            if durability == 0 and player:FindFirstChild("Durability") then
+                durability = player.Durability.Value
             end
 
-            -- Damage = 10% of Strength
             local Damage = Strength * 0.1
 
-            local wildWizardDamage = 75000
-            local mightyMonsterHealth = 65000
+
+            local wildWizardDamage = 75000      
+            local mightyMonsterHealth = 65000   
             local petMultiplier = 2.8
 
-            local totalPetDamage = (wildWizardDamage * 8) + (mightyMonsterHealth * 8)
-            local calculatedDamage = (Damage * petMultiplier) + totalPetDamage
+            local totalPetDamage = wildWizardDamage * 8
+            local totalPetHealth = mightyMonsterHealth * 8
 
-            local totalPetHealth = (mightyMonsterHealth * 8)
+            local calculatedDamage = (Damage * petMultiplier) + totalPetDamage
             local calculatedHealth = (durability * petMultiplier) + totalPetHealth
 
             damageLabel.Text = "Damage: " .. formatNumber(Damage) .. "  |  Pack Damage: " .. formatNumber(calculatedDamage)
@@ -1455,6 +1470,40 @@ task.spawn(function()
         task.wait(0.5)
     end
 end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
