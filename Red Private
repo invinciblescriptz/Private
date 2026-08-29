@@ -1255,21 +1255,21 @@ end)
 
 local redFolder = mainTab:AddFolder("Dumb Shit Red Wanted Me To Add")
 
-teleport:AddButton("Industrial Treadmill", function()  
+redFolder:AddButton("Industrial Treadmill", function()  
     local player = game.Players.LocalPlayer  
     local character = player.Character or player.CharacterAdded:Wait()  
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
     humanoidRootPart.CFrame = CFrame.new(-4964.45996, 80.5837097, 5450.75098, 0.989425242, -4.00852578e-08, 0.145043939, 3.82864975e-08, 1, 1.51928514e-08, -0.145043939, -9.47896517e-09, 0.989425242)  
 end)
 
-teleport:AddButton("Jungle Treadmill", function()  
+redFolder:AddButton("Jungle Treadmill", function()  
     local player = game.Players.LocalPlayer  
     local character = player.Character or player.CharacterAdded:Wait()  
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
     humanoidRootPart.CFrame = CFrame.new(-8137.59863, 26.9099102, 2889.03662, 0.151137456, 6.23989891e-08, 0.988512754, -3.83335141e-08, 1, -5.72631578e-08, -0.988512754, -2.923856e-08, 0.151137456)  
 end)
 
-teleport:AddButton("Legends Tredmill", function()  
+redFolder:AddButton("Legends Tredmill", function()  
     local player = game.Players.LocalPlayer  
     local character = player.Character or player.CharacterAdded:Wait()  
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
