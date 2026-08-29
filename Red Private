@@ -1255,40 +1255,26 @@ end)
 
 local redFolder = mainTab:AddFolder("Dumb Shit Red Wanted Me To Add")
 
-local teleportButtons = {
-    {"Industrial Treadmill", Vector3.new(-4964.45996, 80.5837097, 5450.75098, 0.989425242, -4.00852578e-08, 0.145043939, 3.82864975e-08, 1, 1.51928514e-08, -0.145043939, -9.47896517e-09, 0.989425242)},
-    {"Jungle Treadmill", Vector3.new(-8137.59863, 26.9099102, 2889.03662, 0.151137456, 6.23989891e-08, 0.988512754, -3.83335141e-08, 1, -5.72631578e-08, -0.988512754, -2.923856e-08, 0.151137456)},
-    {"Legends Treadmill", Vector3.new(4369.43359, 998.296814, -3616.67529, 0.442109853, -7.38988746e-08, -0.896960914, -8.64373995e-09, 1, -8.66485479e-08, 0.896960914, 4.60612739e-08, 0.442109853)},
-}
+teleport:AddButton("Industrial Treadmill", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-4964.45996, 80.5837097, 5450.75098, 0.989425242, -4.00852578e-08, 0.145043939, 3.82864975e-08, 1, 1.51928514e-08, -0.145043939, -9.47896517e-09, 0.989425242)  
+end)
 
-local function tpTo(pos)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:FindFirstChild("HumanoidRootPart") or character:WaitForChild("HumanoidRootPart", 5)
-    
-    if not hrp then return end
+teleport:AddButton("Jungle Treadmill", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(-8137.59863, 26.9099102, 2889.03662, 0.151137456, 6.23989891e-08, 0.988512754, -3.83335141e-08, 1, -5.72631578e-08, -0.988512754, -2.923856e-08, 0.151137456)  
+end)
 
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    end
-
-    if typeof(pos) == "CFrame" then
-        hrp.CFrame = pos
-    else
-        hrp.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
-    end
-
-    hrp.Velocity = Vector3.zero
-    hrp.RotVelocity = Vector3.zero
-end
-
-for _, btn in ipairs(teleportButtons) do
-    local name, pos = btn[1], btn[2]
-    redFolder:AddButton(name, function()
-        tpTo(pos)
-    end)
-end
+teleport:AddButton("Legends Tredmill", function()  
+    local player = game.Players.LocalPlayer  
+    local character = player.Character or player.CharacterAdded:Wait()  
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
+    humanoidRootPart.CFrame = CFrame.new(4369.43359, 998.296814, -3616.67529, 0.442109853, -7.38988746e-08, -0.896960914, -8.64373995e-09, 1, -8.66485479e-08, 0.896960914, 4.60612739e-08, 0.442109853)  
+end)
 
 
 local statsTab = window:AddTab("Stats")
