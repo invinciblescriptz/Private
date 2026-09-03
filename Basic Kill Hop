@@ -207,7 +207,7 @@ end
     local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
 
     local startTime = tick()
-    while isPlayerAlive(target) and tick() - startTime < 3 do
+    while isPlayerAlive(target) and tick() - startTime < 6 do
         local targetChar = target.Character
         if not targetChar then break end
 
@@ -243,7 +243,7 @@ end
             end)
         end
 
-        -- Real punch remote
+
         if muscleEvent then
             pcall(function()
                 muscleEvent:FireServer("punch", "leftHand")
