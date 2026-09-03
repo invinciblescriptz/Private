@@ -41,7 +41,7 @@ local AutoServerHopEnabled = true
 local ServerHopInterval = 76 
 local LastServerHop = os.clock()
 
-local window = library:AddWindow("Invincibles Kill 2026 Kill Farm", {
+local window = library:AddWindow("Invincibles 2026 Kill Farm", {
     main_color = Color3.fromRGB(4, 0, 0),
     min_size = Vector2.new(560, 700),
     can_resize = false
