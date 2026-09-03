@@ -1,3 +1,62 @@
+pcall(function()
+    local Lighting = game:GetService("Lighting")
+    local Terrain = workspace:FindFirstChildOfClass("Terrain")
+
+  
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.FogStart = 9e9
+    Lighting.Brightness = 0.4          
+    Lighting.Ambient = Color3.fromRGB(25, 25, 25)
+    Lighting.OutdoorAmbient = Color3.fromRGB(25, 25, 25)
+    Lighting.ShadowSoftness = 0
+
+ 
+    local cc = Instance.new("ColorCorrectionEffect")
+    cc.Name = "AntiLagDark"
+    cc.Brightness = -0.25
+    cc.Contrast = 0.15
+    cc.Saturation = -0.2
+    cc.Parent = Lighting
+
+    for _, v in ipairs(Lighting:GetDescendants()) do
+        if v:IsA("PostEffect") and v.Name ~= "AntiLagDark" then
+            v.Enabled = false
+        end
+    end
+
+    if Terrain then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveSpeed = 0
+        Terrain.WaterReflectance = 0
+        Terrain.WaterTransparency = 1
+    end
+
+
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.CastShadow = false
+            v.Material = Enum.Material.Plastic
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
+            v:Destroy()
+        end
+    end
+
+    workspace.DescendantAdded:Connect(function(child)
+        task.defer(function()
+            if child:IsA("ParticleEmitter") or child:IsA("Trail") or child:IsA("Smoke") or child:IsA("Fire") or child:IsA("Sparkles") or child:IsA("ForceField") then
+                child:Destroy()
+            elseif child:IsA("BasePart") then
+                child.CastShadow = false
+            end
+        end)
+    end)
+end)
+
+
 if getgenv().AutoKillLoaded then return end
 getgenv().AutoKillLoaded = true
 
@@ -106,26 +165,21 @@ end)
 
 
 local tab = window:AddTab("Kill")
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local localPlayer = Players.LocalPlayer
-
 local tpLoop = false
+local lockedTarget = nil
+local lockStartTime = 0
+local LOCK_DURATION = 0.5
 
 local function getCharacter()
 	return localPlayer.Character
 end
 
-local function getPlayersInRange()
-	local character = getCharacter()
-	local hrp = character and character:FindFirstChild("HumanoidRootPart")
-	if not hrp then
-		return {}
-	end
-
-	local inRangePlayers = {}
+local function getAllValidPlayers()
+	local valid = {}
 
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= localPlayer then
@@ -134,87 +188,78 @@ local function getPlayersInRange()
 			local targetHumanoid = targetChar and targetChar:FindFirstChildOfClass("Humanoid")
 
 			if targetHRP and targetHumanoid and targetHumanoid.Health > 0 then
-				local distance = (targetHRP.Position - hrp.Position).Magnitude
-				if distance <= largePunchRadius then
-					table.insert(inRangePlayers, targetHRP)
-				end
+				table.insert(valid, targetHRP)
 			end
 		end
 	end
 
-	return inRangePlayers
+	return valid
 end
 
-local function teleportToPlayers()
+local currentIndex = 1
+
+local function getNextTarget()
+	local players = getAllValidPlayers()
+	if #players == 0 then
+		return nil
+	end
+
+	if currentIndex > #players then
+		currentIndex = 1
+	end
+
+	local target = players[currentIndex]
+	currentIndex = currentIndex + 1
+	return target
+end
+
+local function startLockLoop()
 	task.spawn(function()
 		while tpLoop do
 			local character = getCharacter()
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
 			if not hrp then
-				task.wait(0.2)
+				task.wait(0.1)
 				continue
 			end
 
-			local playersInRange = getPlayersInRange()
+			local now = tick()
 
-			if #playersInRange > 0 then
-				for _, targetHRP in ipairs(playersInRange) do
-					if not tpLoop then
-						break
-					end
-
-					hrp.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
-					task.wait(0.2)
-				end
+			if not lockedTarget
+				or not lockedTarget.Parent
+				or not lockedTarget.Parent:FindFirstChildOfClass("Humanoid")
+				or lockedTarget.Parent:FindFirstChildOfClass("Humanoid").Health <= 0
+				or (now - lockStartTime) >= LOCK_DURATION
+			then
+				lockedTarget = getNextTarget()
+				lockStartTime = now
 			end
-			task.wait(0.1)
-		end
-	end)
-end
 
-local function startTpLoop()
-	task.spawn(function()
-		while tpLoop do
-			for _, plr in ipairs(Players:GetPlayers()) do
-				if not tpLoop then
-					break
-				end
-
-				if plr == localPlayer then
-					continue
-				end
-
-				local targetChar = plr.Character
-				local targetHRP = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
-				local targetHumanoid = targetChar and targetChar:FindFirstChildOfClass("Humanoid")
-
-				if targetHRP and targetHumanoid and targetHumanoid.Health > 0 then
-					local character = getCharacter()
-					local hrp = character and character:FindFirstChild("HumanoidRootPart")
-					if hrp then
-						-- Teleport slightly behind the target
-						hrp.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
-						task.wait(0.2)
-					end
-				end
+			if lockedTarget then
+				hrp.CFrame = lockedTarget.CFrame * CFrame.new(0, 0, 3) 
 			end
-			task.wait(0.1)
+
+			task.wait()
 		end
+
+		lockedTarget = nil
 	end)
 end
 
 local switch = tab:AddSwitch("Kill Everybody", function(state)
 	tpLoop = state
 	if state then
-		startTpLoop()
-		teleportToPlayers()
+		lockedTarget = nil
+		currentIndex = 1
+		startLockLoop()
+	else
+		lockedTarget = nil
 	end
 end)
 
 tpLoop = true
-startTpLoop()
-teleportToPlayers()
-
+startLockLoop()
 
 
 
