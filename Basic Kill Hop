@@ -1,67 +1,33 @@
-pcall(function()
-    local Lighting = game:GetService("Lighting")
-    local Terrain = workspace:FindFirstChildOfClass("Terrain")
+local Lighting = game:GetService("Lighting")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
 
-  
-    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-    Lighting.GlobalShadows = false
-    Lighting.FogEnd = 9e9
-    Lighting.FogStart = 9e9
-    Lighting.Brightness = 0.4          
-    Lighting.Ambient = Color3.fromRGB(25, 25, 25)
-    Lighting.OutdoorAmbient = Color3.fromRGB(25, 25, 25)
-    Lighting.ShadowSoftness = 0
+Lighting.ClockTime = 0 
+Lighting.GlobalShadows = false
+Lighting.FogEnd = 100000
 
- 
-    local cc = Instance.new("ColorCorrectionEffect")
-    cc.Name = "AntiLagDark"
-    cc.Brightness = -0.25
-    cc.Contrast = 0.15
-    cc.Saturation = -0.2
-    cc.Parent = Lighting
+if Terrain then
+    Terrain.WaterWaveSize = 0
+    Terrain.WaterWaveSpeed = 0
+    Terrain.WaterReflectance = 0
+    Terrain.WaterTransparency = 0.5
+end
 
-    for _, v in ipairs(Lighting:GetDescendants()) do
-        if v:IsA("PostEffect") and v.Name ~= "AntiLagDark" then
-            v.Enabled = false
-        end
+for _, obj in ipairs(game:GetDescendants()) do
+    if obj:IsA("ParticleEmitter")
+        or obj:IsA("Trail")
+        or obj:IsA("Beam") then
+        obj.Enabled = false
+    elseif obj:IsA("PostEffect") then
+        obj.Enabled = false
     end
-
-    if Terrain then
-        Terrain.WaterWaveSize = 0
-        Terrain.WaterWaveSpeed = 0
-        Terrain.WaterReflectance = 0
-        Terrain.WaterTransparency = 1
-    end
-
-
-    for _, v in ipairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.CastShadow = false
-            v.Material = Enum.Material.Plastic
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = 1
-        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
-            v:Destroy()
-        end
-    end
-
-    workspace.DescendantAdded:Connect(function(child)
-        task.defer(function()
-            if child:IsA("ParticleEmitter") or child:IsA("Trail") or child:IsA("Smoke") or child:IsA("Fire") or child:IsA("Sparkles") or child:IsA("ForceField") then
-                child:Destroy()
-            elseif child:IsA("BasePart") then
-                child.CastShadow = false
-            end
-        end)
-    end)
-end)
+end
 
 
 if getgenv().AutoKillLoaded then return end
 getgenv().AutoKillLoaded = true
 
 local library = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/memejames/elerium-v2-ui-library/refs/heads/main/Library",
+    "https://raw.githubusercontent.com/invinciblescriptz/UI-librarys-/refs/heads/main/Modern%20Elerium",
     true
 ))()
 
@@ -72,11 +38,11 @@ local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
 local AutoServerHopEnabled = true
-local ServerHopInterval = 50
+local ServerHopInterval = 76 
 local LastServerHop = os.clock()
 
-local window = library:AddWindow("Kill Hop", {
-    main_color = Color3.fromRGB(150, 10, 0),
+local window = library:AddWindow("Invincibles Kill 2026 Kill Farm", {
+    main_color = Color3.fromRGB(4, 0, 0),
     min_size = Vector2.new(560, 700),
     can_resize = false
 })
@@ -164,191 +130,167 @@ task.spawn(function()
 end)
 
 
-local tab = window:AddTab("Kill")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
-local localPlayer = Players.LocalPlayer
-local tpLoop = false
-local lockedTarget = nil
-local lockStartTime = 0
-local LOCK_DURATION = 0.5
-
-local function getCharacter()
-	return localPlayer.Character
+local function isPlayerAlive(player)
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    return hum and hum.Health > 0
 end
 
-local function getAllValidPlayers()
-	local valid = {}
+local function getPunchTool()
+    local char = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
 
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= localPlayer then
-			local targetChar = plr.Character
-			local targetHRP = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
-			local targetHumanoid = targetChar and targetChar:FindFirstChildOfClass("Humanoid")
-
-			if targetHRP and targetHumanoid and targetHumanoid.Health > 0 then
-				table.insert(valid, targetHRP)
-			end
-		end
-	end
-
-	return valid
-end
-
-local currentIndex = 1
-
-local function getNextTarget()
-	local players = getAllValidPlayers()
-	if #players == 0 then
-		return nil
-	end
-
-	if currentIndex > #players then
-		currentIndex = 1
-	end
-
-	local target = players[currentIndex]
-	currentIndex = currentIndex + 1
-	return target
-end
-
-local function startLockLoop()
-	task.spawn(function()
-		while tpLoop do
-			local character = getCharacter()
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-			if not hrp then
-				task.wait(0.1)
-				continue
-			end
-
-			local now = tick()
-
-			if not lockedTarget
-				or not lockedTarget.Parent
-				or not lockedTarget.Parent:FindFirstChildOfClass("Humanoid")
-				or lockedTarget.Parent:FindFirstChildOfClass("Humanoid").Health <= 0
-				or (now - lockStartTime) >= LOCK_DURATION
-			then
-				lockedTarget = getNextTarget()
-				lockStartTime = now
-			end
-
-			if lockedTarget then
-				hrp.CFrame = lockedTarget.CFrame * CFrame.new(0, 0, 3) 
-			end
-
-			task.wait()
-		end
-
-		lockedTarget = nil
-	end)
-end
-
-local switch = tab:AddSwitch("Kill Everybody", function(state)
-	tpLoop = state
-	if state then
-		lockedTarget = nil
-		currentIndex = 1
-		startLockLoop()
-	else
-		lockedTarget = nil
-	end
-end)
-
-tpLoop = true
-startLockLoop()
-
-
-
-local PunchBoost = {
-    Current = nil 
-}
-
-local function getToolName()
-    if PunchBoost.Current == "Egg" then
-        return "Protein Egg"
-    elseif PunchBoost.Current == "Shake" then
-        return "Tropical Shake"
+    if char and char:FindFirstChild("Punch") then
+        return char.Punch
+    end
+    if backpack and backpack:FindFirstChild("Punch") then
+        return backpack.Punch
     end
     return nil
 end
 
-local function doPunchAndEquip()
-    local player = game.Players.LocalPlayer
-    local character = player.Character
-    local backpack = player:FindFirstChild("Backpack")
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-    local toolName = getToolName()
+local function getProteinEgg()
+    local char = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
 
-    if not (humanoid and backpack and toolName) then return end
+    if char and char:FindFirstChild("Protein Egg") then
+        return char["Protein Egg"]
+    end
+    if backpack and backpack:FindFirstChild("Protein Egg") then
+        return backpack["Protein Egg"]
+    end
+    return nil
+end
 
-    local punch = backpack:FindFirstChild("Punch") or (character and character:FindFirstChild("Punch"))
-    if punch then
+local function killPlayer(target)
+    local myChar = LocalPlayer.Character
+    if not myChar then return end
+
+    local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+    if not myHRP then return end
+
+    local hum = myChar:FindFirstChildOfClass("Humanoid")
+
+    local punchTool = getPunchTool()
+    if punchTool and punchTool.Parent == LocalPlayer.Backpack and hum then
         pcall(function()
-            humanoid:EquipTool(punch)
-        end)
-        pcall(function()
-            player.muscleEvent:FireServer("punch", "rightHand")
+            hum:EquipTool(punchTool)
         end)
     end
 
+local proteinEgg = getProteinEgg()
 
-    local item = backpack:FindFirstChild(toolName) or (character and character:FindFirstChild(toolName))
-    if item then
+
+if proteinEgg and proteinEgg.Parent == LocalPlayer.Backpack and hum then
+    pcall(function()
+        hum:EquipTool(proteinEgg)
+    end)
+end
+
+if punchTool then
+    local attackTime = punchTool:FindFirstChild("attackTime")
+    if attackTime then
+        attackTime.Value = 0
+    end
+
+    if punchTool.Parent == LocalPlayer.Backpack then
+        punchTool.Parent = LocalPlayer.Character
+    end
+end
+
+    local leftHand = myChar:FindFirstChild("LeftHand") or myChar:FindFirstChild("Left Arm")
+    local rightHand = myChar:FindFirstChild("RightHand") or myChar:FindFirstChild("Right Arm")
+    local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
+
+    local startTime = tick()
+    while isPlayerAlive(target) and tick() - startTime < 3 do
+        local targetChar = target.Character
+        if not targetChar then break end
+
+        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
+        if not targetHRP then break end
+
+   
         pcall(function()
-            humanoid:EquipTool(item)
+            myHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 2.2)
         end)
+
+        if punchTool and punchTool.Parent == LocalPlayer.Backpack and hum then
+            pcall(function()
+                hum:EquipTool(punchTool)
+            end)
+        end
+        if proteinEgg and proteinEgg.Parent == LocalPlayer.Backpack and hum then
+            pcall(function()
+                hum:EquipTool(proteinEgg)
+            end)
+        end
+
+        if leftHand then
+            pcall(function()
+                firetouchinterest(targetHRP, leftHand, 0)
+                firetouchinterest(targetHRP, leftHand, 1)
+            end)
+        end
+        if rightHand then
+            pcall(function()
+                firetouchinterest(targetHRP, rightHand, 0)
+                firetouchinterest(targetHRP, rightHand, 1)
+            end)
+        end
+
+        -- Real punch remote
+        if muscleEvent then
+            pcall(function()
+                muscleEvent:FireServer("punch", "leftHand")
+                muscleEvent:FireServer("punch", "rightHand")
+            end)
+        end
+
+        if punchTool then
+            pcall(function()
+                punchTool:Activate()
+            end)
+        end
+
+        task.wait(0.04)
     end
 end
 
 
-task.spawn(function()
-    while true do
-        if PunchBoost.Current then
-            doPunchAndEquip()
-        end
-        task.wait(0.12)
+local KillingTab = window:AddTab("KILL")
+
+KillingTab:AddLabel("Kill +  Egg").TextSize = 22
+
+_G.killAllEnabled = true
+
+local killSwitch = KillingTab:AddSwitch("Kill everybody", function(bool)
+    _G.killAllEnabled = bool
+
+    if bool then
+        task.spawn(function()
+            while _G.killAllEnabled do
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if not _G.killAllEnabled then break end
+
+                    if player ~= LocalPlayer and isPlayerAlive(player) then
+                        killPlayer(player)
+                        task.wait(0.05)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
     end
 end)
 
-local eggSwitch = tab:AddSwitch("Punch + Egg", function(state)
-    if state then
-        PunchBoost.Current = "Egg"
-        if shakeSwitch then
-            shakeSwitch:Set(false)
-        end
-    else
-        if PunchBoost.Current == "Egg" then
-            PunchBoost.Current = nil
-        end
-    end
-end)
+killSwitch:Set(true)
 
 
-local shakeSwitch = tab:AddSwitch("Punch + Shake", function(state)
-    if state then
-        PunchBoost.Current = "Shake"
-        if eggSwitch then
-            eggSwitch:Set(false)
-        end
-    else
-        if PunchBoost.Current == "Shake" then
-            PunchBoost.Current = nil
-        end
-    end
-end)
-
-task.defer(function()
-    task.wait(0.5) 
-    if math.random(1, 2) == 1 then
-        eggSwitch:Set(true)
-    else
-        shakeSwitch:Set(true)
-    end
-end)
 
 
 
@@ -380,14 +322,6 @@ RunService.RenderStepped:Connect(function()
         Camera.CFrame = Camera.CFrame * CFrame.Angles(math.rad(15), 0, 0)
     end
 end)
-
-
-
-
-
-
-
-
 
 
 pcall(function()
