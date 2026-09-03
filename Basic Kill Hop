@@ -371,4 +371,123 @@ local running = false
 
 local function createDurabilityBar(character)
     local head = character:FindFirstChild("Head")
-    local humanoid = character:FindFirstChildOfClass("Hu
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not head or not humanoid then return end
+
+    local old = head:FindFirstChild("DurabilityBar")
+    if old then old:Destroy() end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "DurabilityBar"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, BAR_WIDTH, 0, BAR_HEIGHT)
+    billboard.StudsOffset = OFFSET
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 120
+    billboard.Parent = head
+
+    local bg = Instance.new("Frame")
+    bg.Name = "Background"
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    bg.BackgroundTransparency = 0.25
+    bg.BorderSizePixel = 0
+    bg.Parent = billboard
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1.5
+    stroke.Color = Color3.fromRGB(0, 0, 0)
+    stroke.Transparency = 0.4
+    stroke.Parent = bg
+
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.Size = UDim2.new(1, 0, 1, 0)
+    fill.BackgroundColor3 = BLOOD_RED
+    fill.BorderSizePixel = 0
+    fill.Parent = bg
+
+    local function updateBar()
+        if not humanoid or not humanoid.Parent then
+            if billboard and billboard.Parent then
+                billboard:Destroy()
+            end
+            return
+        end
+
+        local percent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+
+        if humanoid.Health <= 0 then
+            fill.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            fill.Size = UDim2.new(1, 0, 1, 0)
+        else
+            fill.BackgroundColor3 = BLOOD_RED
+            fill.Size = UDim2.new(percent, 0, 1, 0)
+        end
+    end
+
+    humanoid.HealthChanged:Connect(updateBar)
+    humanoid:GetPropertyChangedSignal("MaxHealth"):Connect(updateBar)
+
+    updateBar()
+    return billboard
+end
+
+
+local function showAllBars()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character then
+            local bar = createDurabilityBar(plr.Character)
+            if bar then
+                activeBars[plr] = bar
+            end
+        end
+    end
+end
+
+local function hideAllBars()
+    for _, bar in pairs(activeBars) do
+        if bar and bar.Parent then
+            bar:Destroy()
+        end
+    end
+    table.clear(activeBars)
+end
+
+
+local switch = miscTab:AddSwitch("Health Bar", function(state)
+    barsEnabled = state
+    if barsEnabled then
+        showAllBars()
+    else
+        hideAllBars()
+    end
+end)
+
+switch:SetValue(true)
+barsEnabled = true
+showAllBars()
+
+
+local function onCharacterAdded(plr, character)
+    if barsEnabled then
+        task.wait(0.4)
+        local bar = createDurabilityBar(character)
+        if bar then
+            activeBars[plr] = bar
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function(character)
+        onCharacterAdded(plr, character)
+    end)
+end)
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    plr.CharacterAdded:Connect(function(character)
+        onCharacterAdded(plr, character)
+    end)
+end
