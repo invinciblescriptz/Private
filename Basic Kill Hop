@@ -434,11 +434,9 @@ local BAR_WIDTH = 120
 local BAR_HEIGHT = 20
 local OFFSET = Vector3.new(0, 6.0, 0)
 local BLOOD_RED = Color3.fromRGB(145, 0, 0)
-
 local Players = game:GetService("Players")
 local activeBars = {}
-local barsEnabled = false
-local running = false 
+local barsEnabled = true
 
 local function createDurabilityBar(character)
     local head = character:FindFirstChild("Head")
@@ -471,7 +469,6 @@ local function createDurabilityBar(character)
     stroke.Transparency = 0.4
     stroke.Parent = bg
 
-
     local fill = Instance.new("Frame")
     fill.Name = "Fill"
     fill.Size = UDim2.new(1, 0, 1, 0)
@@ -488,7 +485,6 @@ local function createDurabilityBar(character)
         end
 
         local percent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-
         if humanoid.Health <= 0 then
             fill.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
             fill.Size = UDim2.new(1, 0, 1, 0)
@@ -500,11 +496,10 @@ local function createDurabilityBar(character)
 
     humanoid.HealthChanged:Connect(updateBar)
     humanoid:GetPropertyChangedSignal("MaxHealth"):Connect(updateBar)
-
     updateBar()
+
     return billboard
 end
-
 
 local function showAllBars()
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -526,7 +521,6 @@ local function hideAllBars()
     table.clear(activeBars)
 end
 
-
 local switch = miscTab:AddSwitch("Health Bar", function(state)
     barsEnabled = state
     if barsEnabled then
@@ -535,11 +529,8 @@ local switch = miscTab:AddSwitch("Health Bar", function(state)
         hideAllBars()
     end
 end)
-
 switch:SetValue(true)
-barsEnabled = true
 showAllBars()
-
 
 local function onCharacterAdded(plr, character)
     if barsEnabled then
@@ -562,5 +553,3 @@ for _, plr in ipairs(Players:GetPlayers()) do
         onCharacterAdded(plr, character)
     end)
 end
-
-
